@@ -125,12 +125,11 @@ function PlayerList(props: {
   onSelectPlayer: (player: Player) => void
 }) {
   const all = props.squad?.squad ?? []
-  const activePos = props.activeSlot != null ? props.slots[props.activeSlot]?.pos : null
   const openPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
   const posRank = (p: Player) => POS_ORDER[p.positions[0]] ?? 99
-  // A player can be placed if some position fits an open slot or the active slot.
-  const canPlace = (p: Player) =>
-    p.positions.some(pos => openPos.has(pos)) || (!!activePos && p.positions.includes(activePos))
+  // A player is selectable only if some position of theirs fits an EMPTY slot;
+  // if all their positions are taken, the row stays greyed out.
+  const canPlace = (p: Player) => p.positions.some(pos => openPos.has(pos))
 
   // Show the whole squad (minus already-used players), ordered GOL→CA.
   const rows = all

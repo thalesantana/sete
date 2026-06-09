@@ -41,6 +41,8 @@ export function App() {
   const [spinning, setSpinning] = useState(false)
   const [spinDisplay, setSpinDisplay] = useState<{ sel: string; copa: number } | null>(null)
   const [preview, setPreview] = useState<Player | null>(null)
+  // slot index when the preview is an already-placed player being moved (else null)
+  const [previewFrom, setPreviewFrom] = useState<number | null>(null)
   const weights = useWeights()
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
@@ -72,6 +74,7 @@ export function App() {
   async function spinTo(entry: { sel: string; copa: number; slug: string }) {
     setSpinning(true)
     setPreview(null)
+    setPreviewFrom(null)
     const squadPromise = loadSquad(entry.slug)
     await runSpin()
     const s = await squadPromise
@@ -106,23 +109,37 @@ export function App() {
     await spinTo(entry)
   }
 
-  // Clicking a player only PREVIEWS them; the user confirms by clicking a
-  // highlighted slot (lets you choose among the positions a player can fill).
+  function clearPreview() { setPreview(null); setPreviewFrom(null) }
+
+  // Clicking a player in the list only PREVIEWS them; the user confirms by
+  // clicking a highlighted slot (so multi-position players choose where to go).
   function onSelectPlayer(player: Player) {
-    setPreview(prev => (prev?.playerId === player.playerId ? null : player))
+    if (preview?.playerId === player.playerId && previewFrom == null) { clearPreview(); return }
+    setPreview(player); setPreviewFrom(null)
   }
 
-  // Clicking a pitch slot: if a player is previewed and can play here, confirm.
+  // Clicking a pitch slot.
   function onSlotClick(i: number) {
     const slot = state.slots[i]
     if (preview) {
+      // confirm placement / move into an empty compatible slot
       if (!slot.player && preview.positions.includes(slot.pos)) {
-        dispatch({ type: 'selectPlayer', slotIndex: i, player: preview })
-        setPreview(null)
+        if (previewFrom == null) dispatch({ type: 'selectPlayer', slotIndex: i, player: preview })
+        else dispatch({ type: 'movePlayer', from: previewFrom, to: i })
+        clearPreview()
+      } else if (previewFrom === i) {
+        clearPreview() // tapped the source again: cancel the move
       }
       return
     }
-    dispatch({ type: 'setActiveSlot', slotIndex: state.activeSlot === i ? null : i })
+    // no preview: pick up an already-placed player to move (only if it can go
+    // to another open position it plays — single-position players can't move)
+    if (slot.player) {
+      const movable = state.slots.some(
+        (s2, j) => j !== i && !s2.player && slot.player!.positions.includes(s2.pos),
+      )
+      if (movable) { setPreview(slot.player); setPreviewFrom(i) }
+    }
   }
 
   /** Free redraw when the drawn team has no player for any remaining slot. */

@@ -26,6 +26,7 @@ export type Action =
   | { type: 'spendReroll' }
   | { type: 'setActiveSlot'; slotIndex: number | null }
   | { type: 'selectPlayer'; slotIndex: number; player: Player }
+  | { type: 'movePlayer'; from: number; to: number }
   | { type: 'clearSlot'; slotIndex: number }
   | { type: 'simulated'; result: CampaignResult }
   | { type: 'restart' }
@@ -76,6 +77,17 @@ export function reducer(s: GameState, a: Action): GameState {
       slots[a.slotIndex] = { ...slots[a.slotIndex], player: a.player }
       used.add(a.player.playerId)
       return { ...s, slots, usedPlayerIds: used, current: null, activeSlot: null }
+    }
+    case 'movePlayer': {
+      // Reposition an already-placed player to another (empty) slot. Keeps the
+      // current draw and used-player set untouched — it's just a rearrange.
+      if (a.from === a.to) return s
+      const mover = s.slots[a.from].player
+      if (!mover || s.slots[a.to].player) return s
+      const slots = s.slots.slice()
+      slots[a.from] = { ...slots[a.from], player: null }
+      slots[a.to] = { ...slots[a.to], player: mover }
+      return { ...s, slots, activeSlot: null }
     }
     case 'clearSlot': {
       const slots = s.slots.slice()
