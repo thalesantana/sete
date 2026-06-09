@@ -11,7 +11,8 @@ import { Controls } from './Controls'
 import { Pitch } from './Pitch'
 import { BoxScore } from './BoxScore'
 import { RollPanel } from './RollPanel'
-import { ResultScreen } from './ResultScreen'
+import { CampaignScreen } from './CampaignScreen'
+import { ResultCard } from './ResultCard'
 import './app.css'
 
 type Theme = 'escuro' | 'claro'
@@ -36,11 +37,15 @@ export function App() {
   const [theme, setTheme] = useState<Theme>('escuro')
   const [state, dispatch] = useReducer(reducer, undefined, () => initialState('classico'))
   const [squad, setSquad] = useState<Squad | null>(null)
+  const [resultView, setResultView] = useState<'campaign' | 'card'>('campaign')
   const [spinning, setSpinning] = useState(false)
   const [spinDisplay, setSpinDisplay] = useState<{ sel: string; copa: number } | null>(null)
   const weights = useWeights()
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+
+  // Always land on the campaign view when a fresh result comes in.
+  useEffect(() => { setResultView('campaign') }, [state.result?.seedCode])
 
   const rating = useMemo(() => rate(state.slots, state.style), [state.slots, state.style])
   const statsVisible = MODES[state.mode].statsVisible
@@ -135,9 +140,28 @@ export function App() {
   }
 
   if (state.phase === 'result' && state.result) {
+    const result = state.result
+    const onRestart = () => { setSquad(null); dispatch({ type: 'restart' }) }
+    const onToggleTheme = () => setTheme(theme === 'escuro' ? 'claro' : 'escuro')
     return (
       <div className="screen tx-scan tx-crt">
-        <ResultScreen result={state.result} onRestart={() => { setSquad(null); dispatch({ type: 'restart' }) }} />
+        {resultView === 'campaign'
+          ? (
+            <CampaignScreen
+              result={result}
+              theme={theme}
+              onToggleTheme={onToggleTheme}
+              onRestart={onRestart}
+              onShowCard={() => setResultView('card')}
+            />
+          )
+          : (
+            <ResultCard
+              result={result}
+              onBack={() => setResultView('campaign')}
+              onRestart={onRestart}
+            />
+          )}
       </div>
     )
   }
