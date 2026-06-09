@@ -58,20 +58,24 @@ export function App() {
   }
 
   async function onRerollSel() {
-    if (!state.current) return
+    if (!state.current || spinning) return
+    setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'sel')
     const entry = pickUniform(makeRng(`${state.seed}:rsel:${state.rollIndex}`), pool)
     await applyEntry(entry)
+    setSpinning(false)
   }
 
   async function onRerollCopa() {
-    if (!state.current) return
+    if (!state.current || spinning) return
+    setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'copa')
     const w = pool.map(c => (weights.get(keyOf(c)) ?? 0.5))
     const entry = pickWeighted(makeRng(`${state.seed}:rcopa:${state.rollIndex}`), pool, w)
     await applyEntry(entry)
+    setSpinning(false)
   }
 
   function onSimulate() {

@@ -18,8 +18,8 @@ export function RollPanel(props: {
     <div className="roll-panel card">
       <p className="display">{props.current.sel} · {props.current.copa}</p>
       <div className="reroll-row">
-        <button className="btn" disabled={props.rerollsLeft <= 0} onClick={props.onRerollSel}>↺ Seleção</button>
-        <button className="btn" disabled={props.rerollsLeft <= 0} onClick={props.onRerollCopa}>↺ Copa</button>
+        <button className="btn" disabled={props.rerollsLeft <= 0 || props.spinning} onClick={props.onRerollSel}>↺ Seleção</button>
+        <button className="btn" disabled={props.rerollsLeft <= 0 || props.spinning} onClick={props.onRerollCopa}>↺ Copa</button>
         <span className="muted">{props.rerollsLeft} trocas</span>
       </div>
     </div>
