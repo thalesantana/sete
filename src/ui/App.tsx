@@ -105,12 +105,17 @@ export function App() {
   }
 
   function onSelectPlayer(player: Player) {
-    if (state.activeSlot != null) {
-      dispatch({ type: 'selectPlayer', slotIndex: state.activeSlot, player })
+    // Use the active slot only if the player can play there; otherwise the
+    // first compatible slot (preferring empty ones).
+    const active = state.activeSlot
+    if (active != null && player.positions.includes(state.slots[active].pos)) {
+      dispatch({ type: 'selectPlayer', slotIndex: active, player })
       return
     }
-    const idx = state.slots.findIndex(s => !s.player && player.positions.includes(s.pos))
-    if (idx >= 0) dispatch({ type: 'selectPlayer', slotIndex: idx, player })
+    const empty = state.slots.findIndex(s => !s.player && player.positions.includes(s.pos))
+    if (empty >= 0) { dispatch({ type: 'selectPlayer', slotIndex: empty, player }); return }
+    const any = state.slots.findIndex(s => player.positions.includes(s.pos))
+    if (any >= 0) dispatch({ type: 'selectPlayer', slotIndex: any, player })
   }
 
   /** Free redraw when the drawn team has no player for any remaining slot. */

@@ -123,15 +123,15 @@ function PlayerList(props: {
 }) {
   const all = props.squad?.squad ?? []
   const activePos = props.activeSlot != null ? props.slots[props.activeSlot]?.pos : null
-  // positions still open in the lineup
-  const openPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
+  // positions the player can be placed in: any open slot, plus the active slot
+  // (so the whole eligible squad shows, and an active slot can be swapped).
+  const targetPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
+  if (activePos) targetPos.add(activePos)
   const posRank = (p: Player) => POS_ORDER[p.positions[0]] ?? 99
 
   const rows = all
     .filter(p => !props.usedPlayerIds.has(p.playerId))
-    .filter(p => (activePos
-      ? p.positions.includes(activePos)
-      : p.positions.some(pos => openPos.has(pos))))
+    .filter(p => p.positions.some(pos => targetPos.has(pos)))
     .sort((a, b) => posRank(a) - posRank(b) || b.force - a.force)
 
   return (
