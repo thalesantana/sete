@@ -44,6 +44,8 @@ export function reducer(s: GameState, a: Action): GameState {
     case 'setMode':
       return initialState(a.mode, s.seed)
     case 'setFormation': {
+      // Formation is locked once the draft has started (first roll).
+      if (s.rollIndex > 0) return s
       const { slots, usedPlayerIds } = relayout(s.slots, a.formation, s.style)
       return { ...s, formation: a.formation, slots, usedPlayerIds, activeSlot: null }
     }

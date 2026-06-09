@@ -216,6 +216,7 @@ export function App() {
         <section className="col col-left">
           <Controls
             formation={state.formation} style={state.style} mode={state.mode}
+            formationLocked={state.rollIndex > 0}
             onFormation={f => dispatch({ type: 'setFormation', formation: f })}
             onStyle={s => dispatch({ type: 'setStyle', style: s })}
             onMode={m => { setSquad(null); dispatch({ type: 'setMode', mode: m }) }}

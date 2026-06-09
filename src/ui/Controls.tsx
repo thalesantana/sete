@@ -10,18 +10,20 @@ const MODE_LABELS: Record<Mode, string> = { classico: 'Clássico', almanaque: 'D
 
 export function Controls(props: {
   formation: Formation; style: Style; mode: Mode
+  formationLocked?: boolean
   onFormation: (f: Formation) => void; onStyle: (s: Style) => void; onMode: (m: Mode) => void
 }) {
   return (
     <div className="ctrl-card">
       <div className="ctrl-block">
-        <div className="eyebrow">FORMAÇÃO</div>
+        <div className="eyebrow">FORMAÇÃO{props.formationLocked ? ' · TRAVADA' : ''}</div>
         <div className="chip-grid">
           {FORMATION_KEYS.map(f => (
             <button
               key={f}
               className={`chip${f === props.formation ? ' is-active' : ''}`}
-              onClick={() => props.onFormation(f)}
+              disabled={props.formationLocked && f !== props.formation}
+              onClick={() => !props.formationLocked && props.onFormation(f)}
             >{f}</button>
           ))}
         </div>
