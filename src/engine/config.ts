@@ -32,7 +32,7 @@ export const RATING = {
 export const STYLE_TILT = {
   defensivo: { atk: 0.95, def: 1.05 },
   equilibrado: { atk: 1.0, def: 1.0 },
-  atacante: { atk: 1.05, def: 0.95 },
+  ofensivo: { atk: 1.05, def: 0.95 },
 }
 
 /** Knockout penalty shootout probability params. */

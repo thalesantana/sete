@@ -27,7 +27,7 @@ export interface CatalogEntry {
 export type Formation =
   | '4-3-3' | '4-4-2' | '4-2-3-1' | '4-2-4' | '3-5-2' | '5-3-2' | '4-5-1' | '3-4-3'
 
-export type Style = 'defensivo' | 'equilibrado' | 'atacante'
+export type Style = 'defensivo' | 'equilibrado' | 'ofensivo'
 export type Mode = 'classico' | 'almanaque'
 
 /** A starting slot: position to fill + the player chosen (or null). */

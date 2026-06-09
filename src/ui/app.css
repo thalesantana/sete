@@ -1,23 +1,233 @@
-.app { max-width: 1100px; margin: 0 auto; padding: 1rem; }
-.topbar { display: flex; align-items: center; gap: 1rem; padding: .5rem 0; }
-.topbar .logo { font-size: 2rem; color: var(--accent); }
-.topbar button { margin-left: auto; }
-.layout { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
-.controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.roll-panel { padding: 1rem; margin-bottom: 1rem; text-align: center; }
-.reroll-row { display: flex; gap: .5rem; align-items: center; justify-content: center; }
-.pitch { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; padding: 1rem; border-radius: 8px; }
-.slot { display: flex; flex-direction: column; padding: .5rem; min-height: 64px; align-items: center; justify-content: center; }
-.slot-pos { font-size: .7rem; color: var(--muted); }
-.slot-name { font-weight: 700; }
-.boxscore { padding: 1rem; }
-.boxscore table { width: 100%; border-collapse: collapse; }
-.boxscore td { border-bottom: 1px solid var(--line); padding: .2rem .3rem; }
-.simulate { margin-top: 1rem; width: 100%; }
-.picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: grid; place-items: center; }
-.picker { padding: 1rem; max-height: 80vh; overflow: auto; min-width: 300px; }
-.picker ul { list-style: none; padding: 0; display: grid; gap: .4rem; }
-.result { padding: 2rem; text-align: center; }
-.result .games { text-align: left; max-width: 480px; margin: 1rem auto; }
-.muted { color: var(--muted); }
-@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+/* ============================================================
+   Sete — main build screen layout (matches 7a0 visual).
+   Visual tokens come from theme.css; this file is pure layout.
+   ============================================================ */
+
+.screen {
+  position: relative;
+  min-height: 100vh;
+  padding: 18px 22px 40px;
+}
+
+/* ---------- header ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.score-led {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 56px;
+  line-height: 1;
+}
+.topbar-divider {
+  width: 1px;
+  height: 48px;
+  background: var(--line);
+}
+.brand-title {
+  font-size: 24px;
+  line-height: .92;
+  color: var(--ink);
+}
+.brand-tag {
+  margin-top: 6px;
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.topbar-pills {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- body grid ---------- */
+.body {
+  display: grid;
+  grid-template-columns: 300px 1fr 330px;
+  margin-top: 18px;
+}
+.col {
+  padding: 0 20px;
+}
+.col-left {
+  border-right: 1px solid var(--line);
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.col-center {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.col-right {
+  border-left: 1px solid var(--line);
+  padding-right: 0;
+}
+
+@media (max-width: 900px) {
+  .body { grid-template-columns: 1fr; }
+  .col-left, .col-right { border: none; }
+  .col { padding: 16px 0; border-top: 1px solid var(--line); }
+}
+
+/* ---------- controls card ---------- */
+.ctrl-card {
+  border: var(--card-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ctrl-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- roll: empty state ---------- */
+.roll-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.roll-hint {
+  border: 1px dashed var(--line);
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.roll-big {
+  width: 100%;
+  height: 64px;
+  font-size: 22px;
+}
+
+/* ---------- roll: SAIU card ---------- */
+.roll-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.roll-sel {
+  font-size: 22px;
+  color: var(--ink);
+}
+.roll-copa {
+  font-size: 20px;
+}
+.roll-reroll-label {
+  margin-top: 4px;
+}
+.roll-reroll-btn {
+  width: 100%;
+  padding: 10px;
+}
+.roll-pick-label {
+  margin-top: 8px;
+}
+
+/* ---------- player list ---------- */
+.player-list {
+  max-height: 340px;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
+}
+.player-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--body);
+}
+.player-row:hover { background: rgba(127,127,127,.08); }
+.player-num { font-size: 12px; min-width: 32px; }
+.player-name { font-weight: 800; flex: 1; }
+.player-pos { font-size: 11px; }
+.player-force { font-size: 14px; min-width: 24px; text-align: right; }
+
+/* ---------- lineup complete ---------- */
+.lineup-done {
+  border: var(--card-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.lineup-count { font-size: 28px; }
+.lineup-sim {
+  width: 100%;
+  height: 56px;
+  font-size: 18px;
+}
+
+/* ---------- center: pitch ---------- */
+.lower-third { text-align: center; padding: 4px 0; }
+.pitch-caption { text-align: center; color: var(--muted); margin-top: 4px; }
+
+/* ---------- right: box score ---------- */
+.box-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.box-overall { font-size: 40px; line-height: 1; }
+.box-legend {
+  display: flex;
+  gap: 18px;
+  font-family: var(--body);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.box-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.box-legend-item .num { font-size: 14px; letter-spacing: 0; }
+.box-dash {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 1px;
+}
+.box-dash-atk { background: var(--accent-2); }
+.box-dash-def { background: var(--win); }

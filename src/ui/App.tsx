@@ -11,9 +11,12 @@ import { Controls } from './Controls'
 import { Pitch } from './Pitch'
 import { BoxScore } from './BoxScore'
 import { RollPanel } from './RollPanel'
-import { PlayerPicker } from './PlayerPicker'
 import { ResultScreen } from './ResultScreen'
 import './app.css'
+
+type Theme = 'escuro' | 'claro'
+
+const MODE_LABELS_UP: Record<string, string> = { classico: 'CLÁSSICO', almanaque: 'ALMANAQUE' }
 
 // Precompute roll weights once from squad averages (loaded lazily; fallback 0.5).
 function useWeights() {
@@ -30,10 +33,9 @@ function useWeights() {
 }
 
 export function App() {
-  const [theme, setTheme] = useState<'paper' | 'crt'>('paper')
+  const [theme, setTheme] = useState<Theme>('escuro')
   const [state, dispatch] = useReducer(reducer, undefined, () => initialState('classico'))
   const [squad, setSquad] = useState<Squad | null>(null)
-  const [picking, setPicking] = useState<number | null>(null)
   const [spinning, setSpinning] = useState(false)
   const weights = useWeights()
 
@@ -49,6 +51,7 @@ export function App() {
   }
 
   async function onRoll() {
+    if (spinning) return
     setSpinning(true)
     const recent = new Set(state.recent)
     const w = weights.size ? weights : new Map(CATALOG.map(c => [keyOf(c), 0.5]))
@@ -58,7 +61,7 @@ export function App() {
   }
 
   async function onRerollSel() {
-    if (!state.current || spinning) return
+    if (!state.current || spinning || state.rerollsLeft <= 0) return
     setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'sel')
@@ -68,7 +71,7 @@ export function App() {
   }
 
   async function onRerollCopa() {
-    if (!state.current || spinning) return
+    if (!state.current || spinning || state.rerollsLeft <= 0) return
     setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'copa')
@@ -78,57 +81,112 @@ export function App() {
     setSpinning(false)
   }
 
+  function onSelectPlayer(player: Player) {
+    if (state.activeSlot != null) {
+      dispatch({ type: 'selectPlayer', slotIndex: state.activeSlot, player })
+      return
+    }
+    const idx = state.slots.findIndex(s => !s.player && player.positions.includes(s.pos))
+    if (idx >= 0) dispatch({ type: 'selectPlayer', slotIndex: idx, player })
+  }
+
   function onSimulate() {
     const bonus = starBonus(state.slots.filter(s => s.player).map(s => s.player!.force))
     const result = playCampaign(`${state.seed}:${keyOf(state.current!)}`, rating, bonus)
     dispatch({ type: 'simulated', result })
   }
 
-  const allFilled = state.slots.every(s => s.player)
+  if (state.phase === 'result' && state.result) {
+    return (
+      <div className="screen tx-scan tx-crt">
+        <ResultScreen result={state.result} onRestart={() => { setSquad(null); dispatch({ type: 'restart' }) }} />
+      </div>
+    )
+  }
+
+  const styleUp = state.style.toUpperCase()
+  const modeUp = MODE_LABELS_UP[state.mode] ?? state.mode.toUpperCase()
 
   return (
-    <div className="app">
+    <div className="screen tx-scan tx-crt">
       <header className="topbar">
-        <span className="numeral logo">7–:0</span>
-        <strong className="display">SETE</strong>
-        <button onClick={() => setTheme(theme === 'paper' ? 'crt' : 'paper')}>
-          {theme === 'paper' ? 'CRT' : 'Paper'}
-        </button>
+        <div className="topbar-left">
+          <div className="score-led">
+            <span className="num led">7</span>
+            <span className="num led-green">:</span>
+            <span className="num led">0</span>
+          </div>
+          <div className="topbar-divider" />
+          <div className="brand">
+            <div className="display brand-title">SETE</div>
+            <div className="display brand-title">A ZERO</div>
+            <div className="eyebrow brand-tag">MONTE · SIMULE · 7 A 0</div>
+          </div>
+        </div>
+
+        <div className="topbar-right">
+          <div className="eyebrow topbar-meta">
+            {state.formation} · {styleUp} · {modeUp}
+          </div>
+          <div className="topbar-pills">
+            <button className="pill">STREAM</button>
+            <button className="pill">PT ▾</button>
+            <button
+              className="pill pill-accent"
+              onClick={() => setTheme(theme === 'escuro' ? 'claro' : 'escuro')}
+            >
+              {theme === 'escuro' ? 'ESCURO' : 'CLARO'}
+            </button>
+          </div>
+        </div>
       </header>
 
-      {state.phase === 'result' && state.result ? (
-        <ResultScreen result={state.result} onRestart={() => { setSquad(null); dispatch({ type: 'restart' }) }} />
-      ) : (
-        <main className="layout">
-          <section>
-            <Controls
-              formation={state.formation} style={state.style} mode={state.mode}
-              onFormation={f => dispatch({ type: 'setFormation', formation: f })}
-              onStyle={s => dispatch({ type: 'setStyle', style: s })}
-              onMode={m => { setSquad(null); dispatch({ type: 'setMode', mode: m }) }}
-            />
-            <RollPanel
-              current={state.current} rerollsLeft={state.rerollsLeft} spinning={spinning}
-              onRoll={onRoll} onRerollSel={onRerollSel} onRerollCopa={onRerollCopa}
-            />
-            <Pitch slots={state.slots} onSlot={i => squad && setPicking(i)} />
-            {allFilled && state.phase === 'build' &&
-              <button className="btn simulate" onClick={onSimulate}>Simular 7 jogos →</button>}
-          </section>
-          <BoxScore rating={rating} slots={state.slots} statsVisible={statsVisible} />
-        </main>
-      )}
+      <hr className="rule" />
 
-      {picking !== null && squad && (
-        <PlayerPicker
-          pos={state.slots[picking].pos}
-          players={squad.squad}
-          usedIds={state.usedPlayerIds}
-          statsVisible={statsVisible}
-          onPick={(p: Player) => { dispatch({ type: 'selectPlayer', slotIndex: picking, player: p }); setPicking(null) }}
-          onClose={() => setPicking(null)}
-        />
-      )}
+      <main className="body">
+        <section className="col col-left">
+          <Controls
+            formation={state.formation} style={state.style} mode={state.mode}
+            onFormation={f => dispatch({ type: 'setFormation', formation: f })}
+            onStyle={s => dispatch({ type: 'setStyle', style: s })}
+            onMode={m => { setSquad(null); dispatch({ type: 'setMode', mode: m }) }}
+          />
+          <RollPanel
+            current={state.current}
+            rerollsLeft={state.rerollsLeft}
+            spinning={spinning}
+            squad={squad}
+            slots={state.slots}
+            activeSlot={state.activeSlot}
+            usedPlayerIds={state.usedPlayerIds}
+            statsVisible={statsVisible}
+            onRoll={onRoll}
+            onRerollSel={onRerollSel}
+            onRerollCopa={onRerollCopa}
+            onSelectPlayer={onSelectPlayer}
+            onSimulate={onSimulate}
+          />
+        </section>
+
+        <section className="col col-center">
+          <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
+          <div style={{ aspectRatio: '800 / 980', width: '100%' }}>
+            <Pitch
+              formation={state.formation}
+              style={state.style}
+              slots={state.slots}
+              activeSlot={state.activeSlot}
+              onSlot={i => dispatch({ type: 'setActiveSlot', slotIndex: state.activeSlot === i ? null : i })}
+            />
+          </div>
+          <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
+          <div className="eyebrow pitch-caption">Toque num jogador pra mudar de posição</div>
+        </section>
+
+        <section className="col col-right">
+          <BoxScore rating={rating} slots={state.slots} statsVisible={statsVisible} />
+        </section>
+      </main>
     </div>
   )
 }

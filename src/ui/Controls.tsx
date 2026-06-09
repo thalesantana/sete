@@ -1,34 +1,57 @@
 import type { Formation, Style, Mode } from '../engine/types'
-import { FORMATIONS } from '../engine/formations'
+import { FORMATION_KEYS } from '../engine/formations'
 
-const STYLES: Style[] = ['defensivo', 'equilibrado', 'atacante']
-const MODE_LABELS: Record<Mode, string> = { classico: 'Clássico', almanaque: 'Almanaque' }
+const STYLES: Style[] = ['defensivo', 'equilibrado', 'ofensivo']
+const STYLE_LABELS: Record<Style, string> = {
+  defensivo: 'Defensivo', equilibrado: 'Equilibrado', ofensivo: 'Ofensivo',
+}
+const MODES: Mode[] = ['classico', 'almanaque']
+const MODE_LABELS: Record<Mode, string> = { classico: 'Clássico', almanaque: 'De almanaque' }
 
 export function Controls(props: {
   formation: Formation; style: Style; mode: Mode
   onFormation: (f: Formation) => void; onStyle: (s: Style) => void; onMode: (m: Mode) => void
-  disabled?: boolean
 }) {
   return (
-    <div className="controls">
-      <label>Formação{' '}
-        <select value={props.formation} disabled={props.disabled}
-          onChange={e => props.onFormation(e.target.value as Formation)}>
-          {Object.keys(FORMATIONS).map(f => <option key={f} value={f}>{f}</option>)}
-        </select>
-      </label>
-      <label>Estilo{' '}
-        <select value={props.style} disabled={props.disabled}
-          onChange={e => props.onStyle(e.target.value as Style)}>
-          {STYLES.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </label>
-      <label>Modo{' '}
-        <select value={props.mode}
-          onChange={e => props.onMode(e.target.value as Mode)}>
-          {(['classico', 'almanaque'] as Mode[]).map(m => <option key={m} value={m}>{MODE_LABELS[m]}</option>)}
-        </select>
-      </label>
+    <div className="ctrl-card">
+      <div className="ctrl-block">
+        <div className="eyebrow">FORMAÇÃO</div>
+        <div className="chip-grid">
+          {FORMATION_KEYS.map(f => (
+            <button
+              key={f}
+              className={`chip${f === props.formation ? ' is-active' : ''}`}
+              onClick={() => props.onFormation(f)}
+            >{f}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="ctrl-block">
+        <div className="eyebrow">ESTILO</div>
+        <div className="chip-row">
+          {STYLES.map(s => (
+            <button
+              key={s}
+              className={`chip${s === props.style ? ' is-active' : ''}`}
+              onClick={() => props.onStyle(s)}
+            >{STYLE_LABELS[s]}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="ctrl-block">
+        <div className="eyebrow">MODO · DIFICULDADE</div>
+        <div className="chip-row">
+          {MODES.map(m => (
+            <button
+              key={m}
+              className={`chip${m === props.mode ? ' is-active' : ''}`}
+              onClick={() => props.onMode(m)}
+            >{MODE_LABELS[m]}</button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

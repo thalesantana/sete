@@ -33,7 +33,7 @@ describe('rate', () => {
 
   it('style tilts attack and defense', () => {
     const base = rate(lineup(Array(11).fill(80)), 'equilibrado')
-    const atk = rate(lineup(Array(11).fill(80)), 'atacante')
+    const atk = rate(lineup(Array(11).fill(80)), 'ofensivo')
     const def = rate(lineup(Array(11).fill(80)), 'defensivo')
     expect(atk.attack).toBeGreaterThan(base.attack)
     expect(def.defense).toBeGreaterThan(base.defense)
