@@ -13,6 +13,7 @@ import { BoxScore } from './BoxScore'
 import { RollPanel } from './RollPanel'
 import { CampaignScreen } from './CampaignScreen'
 import { ResultCard } from './ResultCard'
+import { HowItWorks } from './HowItWorks'
 import './app.css'
 
 type Theme = 'escuro' | 'claro'
@@ -43,6 +44,7 @@ export function App() {
   const [preview, setPreview] = useState<Player | null>(null)
   // slot index when the preview is an already-placed player being moved (else null)
   const [previewFrom, setPreviewFrom] = useState<number | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
   const weights = useWeights()
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
@@ -207,6 +209,7 @@ export function App() {
 
   return (
     <div className="screen tx-scan tx-crt">
+      {showHelp && <HowItWorks onClose={() => setShowHelp(false)} />}
       <header className="topbar">
         <div className="topbar-left">
           <div className="score-led">
@@ -227,7 +230,7 @@ export function App() {
             {state.formation} · {styleUp} · {modeUp}
           </div>
           <div className="topbar-pills">
-            <button className="pill">STREAM</button>
+            <button className="pill" onClick={() => setShowHelp(true)}>? COMO FUNCIONA</button>
             <button className="pill">PT ▾</button>
             <button
               className="pill pill-accent"
