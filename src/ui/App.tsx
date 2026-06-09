@@ -220,7 +220,6 @@ export function App() {
           <div className="topbar-divider" />
           <div className="brand">
             <div className="display brand-title">SETE</div>
-            <div className="display brand-title">A ZERO</div>
             <div className="eyebrow brand-tag">MONTE · SIMULE · 7 A 0</div>
           </div>
         </div>

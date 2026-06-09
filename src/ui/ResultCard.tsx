@@ -23,7 +23,7 @@ export function ResultCard({ result, onBack, onRestart }: Props) {
           <div className="card-mini">
             <div className="card-mini-left">
               <span className={`num card-mini-score ${champ ? 'led-green' : 'led'}`}>7:0</span>
-              <span className="display card-mini-name">SETE A ZERO</span>
+              <span className="display card-mini-name">SETE</span>
             </div>
             <span className="eyebrow card-mini-seed">seed #{result.seedCode}</span>
           </div>
