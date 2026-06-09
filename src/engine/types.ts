@@ -49,17 +49,28 @@ export interface MatchResult {
   outcome: 'V' | 'E' | 'D'
 }
 
+export interface NamedGoal { minute: number; scorer: string }
+
+export interface PenaltyKick { side: 'me' | 'opp'; name: string; scored: boolean }
+export interface Shootout { kicks: PenaltyKick[]; myScore: number; oppScore: number }
+
 export interface CampaignGame {
   phase: string
-  oppOverall: number
+  oppSel: string         // opponent "face": selection code (empty if no context)
+  oppCopa: number
+  oppOverall: number     // ladder difficulty value used for the match
   gf: number
   ga: number
   outcome: 'V' | 'E' | 'D'
   advanced: boolean
   penalties: boolean
-  scorers: number[]      // minutes (own goals scored)
-  conceded: number[]     // minutes conceded
+  scorers: NamedGoal[]   // your goals (minute + scorer name)
+  conceded: NamedGoal[]  // opponent goals
+  shootout: Shootout | null
 }
+
+/** A player as shown on the result card (carries their own team/year). */
+export interface LineupRef { pos: Pos; name: string; number: number; sel: string; copa: number }
 
 export interface CampaignResult {
   champion: boolean
@@ -72,4 +83,7 @@ export interface CampaignResult {
   games: CampaignGame[]
   badge: 'ESMAGADOR' | 'MURALHA' | null
   record: string
+  seedCode: string       // short shareable code, e.g. "17LSTF4"
+  overall: number        // assembled XI overall (avg force)
+  lineup: LineupRef[]    // the assembled XI
 }

@@ -1,6 +1,6 @@
 import { useReducer, useMemo, useState, useEffect } from 'react'
 import { initialState, reducer } from '../state/gameReducer'
-import { CATALOG, keyOf, squadWeights, eligible, loadSquad } from '../engine/catalog'
+import { CATALOG, keyOf, squadWeights, eligible, loadSquad, pickOpponents } from '../engine/catalog'
 import { rollInitial, pickUniform, pickWeighted } from '../engine/roll'
 import { makeRng } from '../engine/rng'
 import { rate, starBonus } from '../engine/rating'
@@ -117,11 +117,20 @@ export function App() {
     await spinTo(entry)
   }
 
-  function onSimulate() {
+  async function onSimulate() {
+    if (spinning) return
     const bonus = starBonus(state.slots.filter(s => s.player).map(s => s.player!.force))
     // Seed the campaign from the assembled XI so the same team always replays the same.
     const ids = state.slots.map(s => s.player?.playerId ?? '').join(',')
-    const result = playCampaign(`${state.seed}:${ids}`, rating, bonus)
+    const seedBase = `${state.seed}:${ids}`
+    // Draw 7 real opponent "faces" (display only; difficulty stays the fixed ladder).
+    const exclude = new Set(state.slots.filter(s => s.player).map(s => `${s.player!.sel}:${s.player!.copa}`))
+    const oppEntries = pickOpponents(makeRng(`${seedBase}:opp`), 7, exclude)
+    const opponents = await Promise.all(oppEntries.map(async e => {
+      const sq = await loadSquad(e.slug)
+      return { sel: e.sel, copa: e.copa, squad: sq.squad }
+    }))
+    const result = playCampaign(seedBase, rating, bonus, { lineup: state.slots, opponents })
     dispatch({ type: 'simulated', result })
   }
 

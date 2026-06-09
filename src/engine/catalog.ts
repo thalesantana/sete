@@ -28,6 +28,26 @@ export function eligible(
   return catalog.filter(c => c.copa === current.copa && c.sel !== current.sel)
 }
 
+/** Pick `count` distinct catalog entries deterministically (for opponent faces). */
+export function pickOpponents(
+  rng: () => number,
+  count: number,
+  excludeKeys: Set<string> = new Set(),
+): CatalogEntry[] {
+  const pool = CATALOG.filter(c => !excludeKeys.has(keyOf(c)))
+  const out: CatalogEntry[] = []
+  const used = new Set<number>()
+  let guard = 0
+  while (out.length < count && guard < 5000) {
+    guard++
+    const i = Math.floor(rng() * pool.length)
+    if (used.has(i)) continue
+    used.add(i)
+    out.push(pool[i])
+  }
+  return out
+}
+
 const cache = new Map<string, Squad>()
 
 /** Load a squad JSON from /squads on demand (browser). Cached by slug. */
