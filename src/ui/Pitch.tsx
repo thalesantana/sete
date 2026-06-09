@@ -46,10 +46,11 @@ export function Pitch(props: {
       {props.slots.map((slot, i) => {
         const c = coords[i]
         if (!c) return null
-        const active = props.activeSlot === i
         const filled = !!slot.player
-        // a previewed player can drop into an empty slot whose position they play
+        // a previewed player can drop only into an EMPTY slot whose position they play
         const droppable = !!props.previewPlayer && !filled && props.previewPlayer.positions.includes(slot.pos)
+        // hide the "active slot" highlight while previewing, so only droppable slots glow
+        const active = props.activeSlot === i && !props.previewPlayer
         const cls = ['disc', filled ? '' : 'slot-empty', active ? 'slot-active' : '', droppable ? 'slot-drop' : '']
           .join(' ').replace(/\s+/g, ' ').trim()
         return (

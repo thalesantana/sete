@@ -256,7 +256,6 @@ export function App() {
         </section>
 
         <section className="col col-center">
-          <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
           <div style={{ aspectRatio: '520 / 694', width: '100%', maxWidth: 520, margin: '0 auto' }}>
             <Pitch
               formation={state.formation}
@@ -267,7 +266,6 @@ export function App() {
               onSlot={onSlotClick}
             />
           </div>
-          <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
           <div className="eyebrow pitch-caption">
             {preview
               ? `Toque numa posição destacada para confirmar ${preview.name}`
