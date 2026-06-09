@@ -15,6 +15,9 @@
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 1190px; /* 300 + 560 + 330 — same as .body */
+  margin: 0 auto;
 }
 .topbar-left {
   display: flex;
