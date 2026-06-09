@@ -170,7 +170,7 @@ export function App() {
 
         <section className="col col-center">
           <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
-          <div style={{ aspectRatio: '800 / 980', width: '100%' }}>
+          <div style={{ aspectRatio: '520 / 694', width: '100%', maxWidth: 520, margin: '0 auto' }}>
             <Pitch
               formation={state.formation}
               style={state.style}

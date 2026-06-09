@@ -5,28 +5,28 @@ import { coordsFor } from '../engine/formations'
 function FieldLines() {
   const s = { fill: 'none', stroke: 'currentColor', strokeWidth: 2 } as const
   return (
-    <svg className="pitch-svg" viewBox="0 0 800 980" preserveAspectRatio="none">
+    <svg className="pitch-svg" viewBox="0 0 520 694" preserveAspectRatio="none">
       {/* boundary */}
-      <rect x={12} y={10} width={776} height={960} {...s} />
+      <rect x={8} y={6} width={504} height={682} {...s} />
       {/* halfway line + centre circle + spot */}
-      <line x1={12} y1={490} x2={788} y2={490} {...s} />
-      <circle cx={400} cy={490} r={74} {...s} />
-      <circle cx={400} cy={490} r={4} fill="currentColor" stroke="none" />
+      <line x1={8} y1={347} x2={512} y2={347} {...s} />
+      <circle cx={260} cy={347} r={66} {...s} />
+      <circle cx={260} cy={347} r={3} fill="currentColor" stroke="none" />
       {/* top box / goal area / spot / D */}
-      <rect x={208} y={10} width={384} height={150} {...s} />
-      <rect x={312} y={10} width={176} height={60} {...s} />
-      <circle cx={400} cy={120} r={4} fill="currentColor" stroke="none" />
-      <path d="M320,160 Q400,224 480,160" {...s} />
+      <rect x={110} y={6} width={300} height={114} {...s} />
+      <rect x={182} y={6} width={156} height={44} {...s} />
+      <circle cx={260} cy={88} r={3} fill="currentColor" stroke="none" />
+      <path d="M210,120 Q260,165 310,120" {...s} />
       {/* bottom box / goal area / spot / D */}
-      <rect x={208} y={820} width={384} height={150} {...s} />
-      <rect x={312} y={910} width={176} height={60} {...s} />
-      <circle cx={400} cy={860} r={4} fill="currentColor" stroke="none" />
-      <path d="M320,820 Q400,756 480,820" {...s} />
+      <rect x={110} y={574} width={300} height={114} {...s} />
+      <rect x={182} y={644} width={156} height={44} {...s} />
+      <circle cx={260} cy={606} r={3} fill="currentColor" stroke="none" />
+      <path d="M210,574 Q260,529 310,574" {...s} />
       {/* corner arcs */}
-      <path d="M12,38 A28,28 0 0 0 40,10" {...s} />
-      <path d="M760,10 A28,28 0 0 0 788,38" {...s} />
-      <path d="M12,942 A28,28 0 0 1 40,970" {...s} />
-      <path d="M760,970 A28,28 0 0 1 788,942" {...s} />
+      <path d="M8,26 A20,20 0 0 0 28,6" {...s} />
+      <path d="M492,6 A20,20 0 0 0 512,26" {...s} />
+      <path d="M8,668 A20,20 0 0 1 28,688" {...s} />
+      <path d="M492,688 A20,20 0 0 1 512,668" {...s} />
     </svg>
   )
 }
