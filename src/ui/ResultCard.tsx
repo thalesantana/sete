@@ -1,5 +1,6 @@
 import type { CampaignResult } from '../engine/types'
 import { country } from '../engine/countries'
+import { Flag } from './Flag'
 import './result.css'
 
 const BADGE_LABEL: Record<string, string> = {
@@ -62,7 +63,7 @@ export function ResultCard({ result, onBack, onRestart }: Props) {
                   <span className="num card-player-num">{p.number}</span>
                   <span className="card-player-name">{p.name}</span>
                   <span className="card-player-team">
-                    <span className="card-player-flag">{c.flag}</span>
+                    <span className="card-player-flag"><Flag sel={p.sel} size={13} /></span>
                     <span className="eyebrow">{c.code}</span>
                     <span className="num card-player-copa">{p.copa}</span>
                   </span>

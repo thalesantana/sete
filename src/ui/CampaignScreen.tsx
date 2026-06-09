@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { CampaignResult, CampaignGame, NamedGoal } from '../engine/types'
 import { country } from '../engine/countries'
+import { Flag } from './Flag'
 import './result.css'
 
 type Theme = 'escuro' | 'claro'
@@ -104,7 +105,7 @@ function GameRow({ game }: { game: CampaignGame }) {
         <span className="eyebrow game-phase">{PHASE_LABEL[game.phase] ?? game.phase}</span>
         <span className="game-opp">
           <span className="game-opp-vs">vs</span>
-          <span className="game-opp-flag">{opp.flag}</span>
+          <span className="game-opp-flag"><Flag sel={game.oppSel} size={14} /></span>
           <span className="eyebrow game-opp-code">{opp.code}</span>
           <span className="display game-opp-name">{opp.name} {game.oppCopa}</span>
         </span>

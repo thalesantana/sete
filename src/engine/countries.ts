@@ -1,6 +1,6 @@
 /** Nome (PT) e bandeira de cada seleção do catálogo. */
 
-interface CountryInfo { name: string; iso2?: string; flag?: string }
+interface CountryInfo { name: string; iso2?: string; flagCode?: string }
 
 const DATA: Record<string, CountryInfo> = {
   ALG: { name: 'Argélia', iso2: 'DZ' },
@@ -20,7 +20,7 @@ const DATA: Record<string, CountryInfo> = {
   DEN: { name: 'Dinamarca', iso2: 'DK' },
   ECU: { name: 'Equador', iso2: 'EC' },
   EGY: { name: 'Egito', iso2: 'EG' },
-  ENG: { name: 'Inglaterra', flag: '🏴\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}' },
+  ENG: { name: 'Inglaterra', flagCode: 'gb-eng' },
   ESP: { name: 'Espanha', iso2: 'ES' },
   FRA: { name: 'França', iso2: 'FR' },
   GER: { name: 'Alemanha', iso2: 'DE' },
@@ -35,14 +35,14 @@ const DATA: Record<string, CountryInfo> = {
   MEX: { name: 'México', iso2: 'MX' },
   NED: { name: 'Holanda', iso2: 'NL' },
   NGA: { name: 'Nigéria', iso2: 'NG' },
-  NIR: { name: 'Irlanda do Norte', iso2: 'GB' },
+  NIR: { name: 'Irlanda do Norte', flagCode: 'gb-nir' },
   PAR: { name: 'Paraguai', iso2: 'PY' },
   PER: { name: 'Peru', iso2: 'PE' },
   POL: { name: 'Polônia', iso2: 'PL' },
   POR: { name: 'Portugal', iso2: 'PT' },
   ROU: { name: 'Romênia', iso2: 'RO' },
   RUS: { name: 'Rússia', iso2: 'RU' },
-  SCO: { name: 'Escócia', flag: '🏴\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}' },
+  SCO: { name: 'Escócia', flagCode: 'gb-sct' },
   SEN: { name: 'Senegal', iso2: 'SN' },
   SRB: { name: 'Sérvia', iso2: 'RS' },
   SUI: { name: 'Suíça', iso2: 'CH' },
@@ -53,20 +53,21 @@ const DATA: Record<string, CountryInfo> = {
   URS: { name: 'União Soviética', iso2: 'RU' },
   URU: { name: 'Uruguai', iso2: 'UY' },
   USA: { name: 'Estados Unidos', iso2: 'US' },
-  WAL: { name: 'País de Gales', flag: '🏴\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}' },
+  WAL: { name: 'País de Gales', flagCode: 'gb-wls' },
   YUG: { name: 'Iugoslávia', iso2: 'RS' },
 }
 
-/** ISO-2 → regional-indicator flag emoji. */
-function flagFromIso(iso2: string): string {
-  return String.fromCodePoint(...[...iso2.toUpperCase()].map(c => 0x1f1e6 + c.charCodeAt(0) - 65))
-}
+export interface Country { code: string; name: string; flagCode: string }
 
-export interface Country { code: string; name: string; flag: string }
-
-/** Resolve a 3-letter selection code to its display name + flag. */
+/** Resolve a 3-letter selection code to its display name + flag slug. */
 export function country(sel: string): Country {
   const info = DATA[sel]
-  if (!info) return { code: sel, name: sel, flag: '🏳️' }
-  return { code: sel, name: info.name, flag: info.flag ?? (info.iso2 ? flagFromIso(info.iso2) : '🏳️') }
+  if (!info) return { code: sel, name: sel, flagCode: '' }
+  return { code: sel, name: info.name, flagCode: info.flagCode ?? (info.iso2 ?? '').toLowerCase() }
+}
+
+/** SVG flag URL (flagcdn) for a selection. `''` if unknown. */
+export function flagUrl(sel: string): string {
+  const code = country(sel).flagCode
+  return code ? `https://flagcdn.com/${code}.svg` : ''
 }

@@ -211,6 +211,13 @@ body {
 .boxscore tr.empty td { opacity: .4; }
 
 /* ---------- lower-third ad banners on the pitch ---------- */
+/* flags (SVG image; Windows can't render flag emoji) */
+.flag { display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.flag-code {
+  font-family: var(--body); font-weight: 800; font-size: .72em; letter-spacing: .04em;
+  padding: 1px 4px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted);
+}
+
 .lower-third {
   font-family: var(--body); font-weight: 700; font-size: 11px; letter-spacing: .18em;
   text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden;

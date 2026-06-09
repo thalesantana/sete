@@ -1,6 +1,7 @@
 import type { CatalogEntry, Player, Slot, Squad } from '../engine/types'
 import { POS_ORDER } from '../engine/config'
 import { country } from '../engine/countries'
+import { Flag } from './Flag'
 
 export function RollPanel(props: {
   current: CatalogEntry | null
@@ -29,7 +30,7 @@ export function RollPanel(props: {
       <div className="roll-card">
         <div className="eyebrow">SORTEANDO…</div>
         <div className="display roll-sel is-spinning">
-          {country(props.spinDisplay.sel).flag} {country(props.spinDisplay.sel).name}
+          <Flag sel={props.spinDisplay.sel} size={18} /> {country(props.spinDisplay.sel).name}
         </div>
         <div className="num led roll-copa is-spinning">Copa {props.spinDisplay.copa}</div>
       </div>
@@ -70,7 +71,7 @@ export function RollPanel(props: {
     <div className="roll-card">
       <div className="eyebrow">SAIU</div>
       <div key={`${props.current.sel}:${props.current.copa}`} className="display roll-sel snap-anim">
-        {c.flag} {c.name}
+        <Flag sel={props.current.sel} size={18} /> {c.name}
       </div>
       <div className="num led roll-copa">Copa {props.current.copa}</div>
 
