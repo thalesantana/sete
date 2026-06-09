@@ -6,6 +6,11 @@ export const W_ATK: Record<Pos, number> = {
   VOL: 0.2, MC: 0.5, MEI: 0.8, PD: 1, CA: 1, PE: 1,
 }
 
+/** Display order of positions: goalkeeper → centre-forward. */
+export const POS_ORDER: Record<Pos, number> = {
+  GOL: 0, LD: 1, LE: 2, ZAG: 3, MD: 4, ME: 5, VOL: 6, MC: 7, MEI: 8, PD: 9, PE: 10, CA: 11,
+}
+
 /** Defense contribution weight by position. */
 export const W_DEF: Record<Pos, number> = {
   GOL: 1, LD: 1, ZAG: 1, LE: 1, MD: 0.5, ME: 0.5,

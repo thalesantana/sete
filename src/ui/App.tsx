@@ -37,6 +37,7 @@ export function App() {
   const [state, dispatch] = useReducer(reducer, undefined, () => initialState('classico'))
   const [squad, setSquad] = useState<Squad | null>(null)
   const [spinning, setSpinning] = useState(false)
+  const [spinDisplay, setSpinDisplay] = useState<{ sel: string; copa: number } | null>(null)
   const weights = useWeights()
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
@@ -44,41 +45,58 @@ export function App() {
   const rating = useMemo(() => rate(state.slots, state.style), [state.slots, state.style])
   const statsVisible = MODES[state.mode].statsVisible
 
-  async function applyEntry(entry: { sel: string; copa: number; slug: string }) {
-    const s = await loadSquad(entry.slug)
+  /** Slot-machine reveal: flash random draws with a decelerating cadence (~1s). */
+  function runSpin(): Promise<void> {
+    return new Promise(resolve => {
+      let delay = 55
+      let elapsed = 0
+      const tick = () => {
+        const r = CATALOG[Math.floor(Math.random() * CATALOG.length)]
+        setSpinDisplay({ sel: r.sel, copa: r.copa })
+        elapsed += delay
+        delay *= 1.18
+        if (elapsed < 950) setTimeout(tick, delay)
+        else resolve()
+      }
+      tick()
+    })
+  }
+
+  /** Animate the roulette, then reveal the (deterministic) drawn entry. */
+  async function spinTo(entry: { sel: string; copa: number; slug: string }) {
+    setSpinning(true)
+    const squadPromise = loadSquad(entry.slug)
+    await runSpin()
+    const s = await squadPromise
     setSquad(s)
+    setSpinDisplay(null)
     dispatch({ type: 'rolled', entry })
+    setSpinning(false)
   }
 
   async function onRoll() {
     if (spinning) return
-    setSpinning(true)
     const recent = new Set(state.recent)
     const w = weights.size ? weights : new Map(CATALOG.map(c => [keyOf(c), 0.5]))
     const entry = rollInitial(makeRng(`${state.seed}:roll:${state.rollIndex}`), CATALOG, w, recent)
-    await applyEntry(entry)
-    setSpinning(false)
+    await spinTo(entry)
   }
 
   async function onRerollSel() {
     if (!state.current || spinning || state.rerollsLeft <= 0) return
-    setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'sel')
     const entry = pickUniform(makeRng(`${state.seed}:rsel:${state.rollIndex}`), pool)
-    await applyEntry(entry)
-    setSpinning(false)
+    await spinTo(entry)
   }
 
   async function onRerollCopa() {
     if (!state.current || spinning || state.rerollsLeft <= 0) return
-    setSpinning(true)
     dispatch({ type: 'spendReroll' })
     const pool = eligible(CATALOG, state.current, 'copa')
     const w = pool.map(c => (weights.get(keyOf(c)) ?? 0.5))
     const entry = pickWeighted(makeRng(`${state.seed}:rcopa:${state.rollIndex}`), pool, w)
-    await applyEntry(entry)
-    setSpinning(false)
+    await spinTo(entry)
   }
 
   function onSelectPlayer(player: Player) {
@@ -155,6 +173,7 @@ export function App() {
             current={state.current}
             rerollsLeft={state.rerollsLeft}
             spinning={spinning}
+            spinDisplay={spinDisplay}
             squad={squad}
             slots={state.slots}
             activeSlot={state.activeSlot}

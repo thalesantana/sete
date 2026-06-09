@@ -1,9 +1,11 @@
 import type { CatalogEntry, Player, Slot, Squad } from '../engine/types'
+import { POS_ORDER } from '../engine/config'
 
 export function RollPanel(props: {
   current: CatalogEntry | null
   rerollsLeft: number
   spinning: boolean
+  spinDisplay: { sel: string; copa: number } | null
   squad: Squad | null
   slots: Slot[]
   activeSlot: number | null
@@ -15,6 +17,17 @@ export function RollPanel(props: {
   onSelectPlayer: (player: Player) => void
   onSimulate: () => void
 }) {
+  // Spinning: roulette card cycling random draws before the reveal.
+  if (props.spinning && props.spinDisplay) {
+    return (
+      <div className="roll-card">
+        <div className="eyebrow">SORTEANDO…</div>
+        <div className="display roll-sel is-spinning">{props.spinDisplay.sel}</div>
+        <div className="num led roll-copa is-spinning">Copa {props.spinDisplay.copa}</div>
+      </div>
+    )
+  }
+
   // Empty state: prompt + big roll button.
   if (!props.current) {
     return (
@@ -38,7 +51,9 @@ export function RollPanel(props: {
   return (
     <div className="roll-card">
       <div className="eyebrow">SAIU</div>
-      <div className="display roll-sel">{props.current.sel}</div>
+      <div key={`${props.current.sel}:${props.current.copa}`} className="display roll-sel snap-anim">
+        {props.current.sel}
+      </div>
       <div className="num led roll-copa">Copa {props.current.copa}</div>
 
       <div className="eyebrow roll-reroll-label">
@@ -91,10 +106,12 @@ function PlayerList(props: {
   const all = props.squad?.squad ?? []
   const activePos = props.activeSlot != null ? props.slots[props.activeSlot]?.pos : null
 
+  const posRank = (p: Player) => POS_ORDER[p.positions[0]] ?? 99
   const rows = all
     .filter(p => !props.usedPlayerIds.has(p.playerId))
     .filter(p => (activePos ? p.positions.includes(activePos) : true))
-    .sort((a, b) => b.force - a.force)
+    // ordered goalkeeper → centre-forward; ties broken by rating
+    .sort((a, b) => posRank(a) - posRank(b) || b.force - a.force)
 
   return (
     <div className="player-list">
