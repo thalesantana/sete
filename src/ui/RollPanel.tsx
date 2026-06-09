@@ -14,6 +14,7 @@ export function RollPanel(props: {
   activeSlot: number | null
   usedPlayerIds: Set<string>
   statsVisible: boolean
+  previewId: string | null
   onRoll: () => void
   onRerollSel: () => void
   onRerollCopa: () => void
@@ -105,6 +106,7 @@ export function RollPanel(props: {
             activeSlot={props.activeSlot}
             usedPlayerIds={props.usedPlayerIds}
             statsVisible={props.statsVisible}
+            previewId={props.previewId}
             onSelectPlayer={props.onSelectPlayer}
           />
         </>
@@ -119,6 +121,7 @@ function PlayerList(props: {
   activeSlot: number | null
   usedPlayerIds: Set<string>
   statsVisible: boolean
+  previewId: string | null
   onSelectPlayer: (player: Player) => void
 }) {
   const all = props.squad?.squad ?? []
@@ -141,7 +144,7 @@ function PlayerList(props: {
         return (
         <button
           key={p.playerId}
-          className={`player-row${ok ? '' : ' is-disabled'}`}
+          className={`player-row${ok ? '' : ' is-disabled'}${p.playerId === props.previewId ? ' is-preview' : ''}`}
           disabled={!ok}
           onClick={() => ok && props.onSelectPlayer(p)}
         >

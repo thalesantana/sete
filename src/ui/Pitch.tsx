@@ -1,4 +1,4 @@
-import type { Formation, Style, Slot } from '../engine/types'
+import type { Formation, Style, Slot, Player } from '../engine/types'
 import { coordsFor } from '../engine/formations'
 
 /** Static field markings drawn in an 800×980 portrait viewBox. */
@@ -36,6 +36,7 @@ export function Pitch(props: {
   style: Style
   slots: Slot[]
   activeSlot: number | null
+  previewPlayer?: Player | null
   onSlot: (i: number) => void
 }) {
   const coords = coordsFor(props.formation, props.style)
@@ -47,7 +48,10 @@ export function Pitch(props: {
         if (!c) return null
         const active = props.activeSlot === i
         const filled = !!slot.player
-        const cls = ['disc', filled ? '' : 'slot-empty', active ? 'slot-active' : ''].join(' ').replace(/\s+/g, ' ').trim()
+        // a previewed player can drop into an empty slot whose position they play
+        const droppable = !!props.previewPlayer && !filled && props.previewPlayer.positions.includes(slot.pos)
+        const cls = ['disc', filled ? '' : 'slot-empty', active ? 'slot-active' : '', droppable ? 'slot-drop' : '']
+          .join(' ').replace(/\s+/g, ' ').trim()
         return (
           <div
             key={`${i}-${slot.player?.playerId ?? 'empty'}`}

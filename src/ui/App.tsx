@@ -40,6 +40,7 @@ export function App() {
   const [resultView, setResultView] = useState<'campaign' | 'card'>('campaign')
   const [spinning, setSpinning] = useState(false)
   const [spinDisplay, setSpinDisplay] = useState<{ sel: string; copa: number } | null>(null)
+  const [preview, setPreview] = useState<Player | null>(null)
   const weights = useWeights()
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
@@ -70,6 +71,7 @@ export function App() {
   /** Animate the roulette, then reveal the (deterministic) drawn entry. */
   async function spinTo(entry: { sel: string; copa: number; slug: string }) {
     setSpinning(true)
+    setPreview(null)
     const squadPromise = loadSquad(entry.slug)
     await runSpin()
     const s = await squadPromise
@@ -104,18 +106,23 @@ export function App() {
     await spinTo(entry)
   }
 
+  // Clicking a player only PREVIEWS them; the user confirms by clicking a
+  // highlighted slot (lets you choose among the positions a player can fill).
   function onSelectPlayer(player: Player) {
-    // Use the active slot only if the player can play there; otherwise the
-    // first compatible slot (preferring empty ones).
-    const active = state.activeSlot
-    if (active != null && player.positions.includes(state.slots[active].pos)) {
-      dispatch({ type: 'selectPlayer', slotIndex: active, player })
+    setPreview(prev => (prev?.playerId === player.playerId ? null : player))
+  }
+
+  // Clicking a pitch slot: if a player is previewed and can play here, confirm.
+  function onSlotClick(i: number) {
+    const slot = state.slots[i]
+    if (preview) {
+      if (!slot.player && preview.positions.includes(slot.pos)) {
+        dispatch({ type: 'selectPlayer', slotIndex: i, player: preview })
+        setPreview(null)
+      }
       return
     }
-    const empty = state.slots.findIndex(s => !s.player && player.positions.includes(s.pos))
-    if (empty >= 0) { dispatch({ type: 'selectPlayer', slotIndex: empty, player }); return }
-    const any = state.slots.findIndex(s => player.positions.includes(s.pos))
-    if (any >= 0) dispatch({ type: 'selectPlayer', slotIndex: any, player })
+    dispatch({ type: 'setActiveSlot', slotIndex: state.activeSlot === i ? null : i })
   }
 
   /** Free redraw when the drawn team has no player for any remaining slot. */
@@ -239,6 +246,7 @@ export function App() {
             activeSlot={state.activeSlot}
             usedPlayerIds={state.usedPlayerIds}
             statsVisible={statsVisible}
+            previewId={preview?.playerId ?? null}
             onRoll={onRoll}
             onRerollSel={onRerollSel}
             onRerollCopa={onRerollCopa}
@@ -255,11 +263,16 @@ export function App() {
               style={state.style}
               slots={state.slots}
               activeSlot={state.activeSlot}
-              onSlot={i => dispatch({ type: 'setActiveSlot', slotIndex: state.activeSlot === i ? null : i })}
+              previewPlayer={preview}
+              onSlot={onSlotClick}
             />
           </div>
           <div className="lower-third">ANUNCIE AQUI · CONTATO · ANUNCIE AQUI</div>
-          <div className="eyebrow pitch-caption">Toque num jogador pra mudar de posição</div>
+          <div className="eyebrow pitch-caption">
+            {preview
+              ? `Toque numa posição destacada para confirmar ${preview.name}`
+              : 'Toque num jogador, depois na posição pra confirmar'}
+          </div>
         </section>
 
         <section className="col col-right">

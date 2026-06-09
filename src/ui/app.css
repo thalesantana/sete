@@ -180,6 +180,12 @@
   color: var(--muted);
 }
 .player-row.is-disabled:hover { background: transparent; }
+.player-row.is-preview {
+  border: 1px solid var(--accent-2);
+  background: rgba(245,177,30,.12);
+  color: var(--accent-2);
+}
+.player-row.is-preview .player-name { color: var(--accent-2); }
 .player-num { font-size: 12px; min-width: 32px; }
 .player-name { font-weight: 800; flex: 1; }
 .player-pos { font-size: 11px; }
