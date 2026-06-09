@@ -52,11 +52,12 @@ export function reducer(s: GameState, a: Action): GameState {
       return { ...s, style: a.style, slots, usedPlayerIds, activeSlot: null }
     }
     case 'rolled':
+      // Multi-team draft: a roll only sets the current draw; the accumulated
+      // lineup (slots/usedPlayerIds) is preserved across rolls.
       return {
         ...s, phase: 'build', current: a.entry,
         recent: [...s.recent, `${a.entry.sel}:${a.entry.copa}`].slice(-6),
         rollIndex: s.rollIndex + 1,
-        slots: slotsFor(s.formation, s.style), usedPlayerIds: new Set(), activeSlot: null,
       }
     case 'spendReroll':
       if (s.rerollsLeft <= 0) throw new Error('Sem re-sorteios restantes')
@@ -64,13 +65,15 @@ export function reducer(s: GameState, a: Action): GameState {
     case 'setActiveSlot':
       return { ...s, activeSlot: a.slotIndex }
     case 'selectPlayer': {
+      // Place the player, then clear the current draw — the user rolls again
+      // to pick the next star (assembling an all-star XI from many teams).
       const slots = s.slots.slice()
       const prev = slots[a.slotIndex].player
       const used = new Set(s.usedPlayerIds)
       if (prev) used.delete(prev.playerId)
       slots[a.slotIndex] = { ...slots[a.slotIndex], player: a.player }
       used.add(a.player.playerId)
-      return { ...s, slots, usedPlayerIds: used, activeSlot: null }
+      return { ...s, slots, usedPlayerIds: used, current: null, activeSlot: null }
     }
     case 'clearSlot': {
       const slots = s.slots.slice()

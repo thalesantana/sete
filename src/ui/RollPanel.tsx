@@ -7,6 +7,7 @@ export function RollPanel(props: {
   rerollsLeft: number
   spinning: boolean
   spinDisplay: { sel: string; copa: number } | null
+  needsEmergency: boolean
   squad: Squad | null
   slots: Slot[]
   activeSlot: number | null
@@ -15,9 +16,13 @@ export function RollPanel(props: {
   onRoll: () => void
   onRerollSel: () => void
   onRerollCopa: () => void
+  onEmergencyReroll: () => void
   onSelectPlayer: (player: Player) => void
   onSimulate: () => void
 }) {
+  const filled = props.slots.filter(s => s.player).length
+  const allFilled = props.slots.length > 0 && filled === props.slots.length
+
   // Spinning: roulette card cycling random draws before the reveal.
   if (props.spinning && props.spinDisplay) {
     return (
@@ -31,31 +36,41 @@ export function RollPanel(props: {
     )
   }
 
-  // Empty state: prompt + big roll button.
+  // Lineup complete: simulate.
+  if (allFilled) {
+    return (
+      <div className="lineup-done">
+        <div className="eyebrow">ESCALAÇÃO COMPLETA</div>
+        <div className="num lineup-count">11/11</div>
+        <button className="btn btn-primary lineup-sim" onClick={props.onSimulate}>
+          SIMULAR A COPA →
+        </button>
+      </div>
+    )
+  }
+
+  // No current draw: roll for the next star.
   if (!props.current) {
     return (
       <div className="roll-empty">
         <div className="roll-hint">
-          Role para sortear uma seleção e uma Copa do Mundo
+          {filled === 0
+            ? 'Role para sortear uma seleção e uma Copa do Mundo'
+            : `Monte seu XI · ${filled}/11 · role para a próxima estrela`}
         </div>
-        <button
-          className="btn btn-primary roll-big"
-          disabled={props.spinning}
-          onClick={props.onRoll}
-        >
+        <button className="btn btn-primary roll-big" disabled={props.spinning} onClick={props.onRoll}>
           {props.spinning ? 'SORTEANDO…' : 'ROLAR 🎲'}
         </button>
       </div>
     )
   }
 
-  const allFilled = props.slots.length > 0 && props.slots.every(s => s.player)
-
+  const c = country(props.current.sel)
   return (
     <div className="roll-card">
       <div className="eyebrow">SAIU</div>
       <div key={`${props.current.sel}:${props.current.copa}`} className="display roll-sel snap-anim">
-        {country(props.current.sel).flag} {country(props.current.sel).name}
+        {c.flag} {c.name}
       </div>
       <div className="num led roll-copa">Copa {props.current.copa}</div>
 
@@ -73,12 +88,11 @@ export function RollPanel(props: {
         onClick={props.onRerollCopa}
       >↺ OUTRA COPA</button>
 
-      {allFilled ? (
-        <div className="lineup-done">
-          <div className="eyebrow">ESCALAÇÃO COMPLETA</div>
-          <div className="num lineup-count">11/11</div>
-          <button className="btn btn-primary lineup-sim" onClick={props.onSimulate}>
-            SIMULAR A COPA →
+      {props.needsEmergency ? (
+        <div className="roll-emergency">
+          <div className="eyebrow">SEM JOGADOR PRA UMA VAGA</div>
+          <button className="btn btn-secondary roll-reroll-btn" onClick={props.onEmergencyReroll}>
+            ↻ SORTEAR OUTRO (GRÁTIS)
           </button>
         </div>
       ) : (
@@ -108,12 +122,15 @@ function PlayerList(props: {
 }) {
   const all = props.squad?.squad ?? []
   const activePos = props.activeSlot != null ? props.slots[props.activeSlot]?.pos : null
-
+  // positions still open in the lineup
+  const openPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
   const posRank = (p: Player) => POS_ORDER[p.positions[0]] ?? 99
+
   const rows = all
     .filter(p => !props.usedPlayerIds.has(p.playerId))
-    .filter(p => (activePos ? p.positions.includes(activePos) : true))
-    // ordered goalkeeper → centre-forward; ties broken by rating
+    .filter(p => (activePos
+      ? p.positions.includes(activePos)
+      : p.positions.some(pos => openPos.has(pos))))
     .sort((a, b) => posRank(a) - posRank(b) || b.force - a.force)
 
   return (

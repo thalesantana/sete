@@ -108,9 +108,20 @@ export function App() {
     if (idx >= 0) dispatch({ type: 'selectPlayer', slotIndex: idx, player })
   }
 
+  /** Free redraw when the drawn team has no player for any remaining slot. */
+  async function onEmergencyReroll() {
+    if (spinning) return
+    const recent = new Set(state.recent)
+    const w = weights.size ? weights : new Map(CATALOG.map(c => [keyOf(c), 0.5]))
+    const entry = rollInitial(makeRng(`${state.seed}:emg:${state.rollIndex}`), CATALOG, w, recent)
+    await spinTo(entry)
+  }
+
   function onSimulate() {
     const bonus = starBonus(state.slots.filter(s => s.player).map(s => s.player!.force))
-    const result = playCampaign(`${state.seed}:${keyOf(state.current!)}`, rating, bonus)
+    // Seed the campaign from the assembled XI so the same team always replays the same.
+    const ids = state.slots.map(s => s.player?.playerId ?? '').join(',')
+    const result = playCampaign(`${state.seed}:${ids}`, rating, bonus)
     dispatch({ type: 'simulated', result })
   }
 
@@ -124,6 +135,13 @@ export function App() {
 
   const styleUp = state.style.toUpperCase()
   const modeUp = MODE_LABELS_UP[state.mode] ?? state.mode.toUpperCase()
+
+  // Emergency reroll: a drawn team with no player for any empty slot.
+  const emptyPositions = new Set(state.slots.filter(s => !s.player).map(s => s.pos))
+  const drawHasEligible = !squad || squad.squad.some(
+    p => !state.usedPlayerIds.has(p.playerId) && p.positions.some(pos => emptyPositions.has(pos)),
+  )
+  const needsEmergency = !!state.current && !spinning && !drawHasEligible
 
   return (
     <div className="screen tx-scan tx-crt">
@@ -174,6 +192,8 @@ export function App() {
             rerollsLeft={state.rerollsLeft}
             spinning={spinning}
             spinDisplay={spinDisplay}
+            needsEmergency={needsEmergency}
+            onEmergencyReroll={onEmergencyReroll}
             squad={squad}
             slots={state.slots}
             activeSlot={state.activeSlot}
