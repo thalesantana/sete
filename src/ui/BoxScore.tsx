@@ -33,7 +33,7 @@ export function BoxScore(props: { rating: Rating; slots: Slot[]; statsVisible: b
           {props.slots.map((s, i) => (
             <tr key={i} className={s.player ? undefined : 'empty'}>
               <td className="pos">{s.pos}</td>
-              <td>{s.player ? s.player.name : '(vazio)'}</td>
+              <td>{s.player ? s.player.name : ''}</td>
               <td className="val">{s.player && props.statsVisible ? s.player.force : '—'}</td>
             </tr>
           ))}
