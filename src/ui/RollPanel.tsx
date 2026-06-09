@@ -123,27 +123,35 @@ function PlayerList(props: {
 }) {
   const all = props.squad?.squad ?? []
   const activePos = props.activeSlot != null ? props.slots[props.activeSlot]?.pos : null
-  // positions the player can be placed in: any open slot, plus the active slot
-  // (so the whole eligible squad shows, and an active slot can be swapped).
-  const targetPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
-  if (activePos) targetPos.add(activePos)
+  const openPos = new Set(props.slots.filter(s => !s.player).map(s => s.pos))
   const posRank = (p: Player) => POS_ORDER[p.positions[0]] ?? 99
+  // A player can be placed if some position fits an open slot or the active slot.
+  const canPlace = (p: Player) =>
+    p.positions.some(pos => openPos.has(pos)) || (!!activePos && p.positions.includes(activePos))
 
+  // Show the whole squad (minus already-used players), ordered GOL→CA.
   const rows = all
     .filter(p => !props.usedPlayerIds.has(p.playerId))
-    .filter(p => p.positions.some(pos => targetPos.has(pos)))
     .sort((a, b) => posRank(a) - posRank(b) || b.force - a.force)
 
   return (
     <div className="player-list">
-      {rows.map(p => (
-        <button key={p.playerId} className="player-row" onClick={() => props.onSelectPlayer(p)}>
+      {rows.map(p => {
+        const ok = canPlace(p)
+        return (
+        <button
+          key={p.playerId}
+          className={`player-row${ok ? '' : ' is-disabled'}`}
+          disabled={!ok}
+          onClick={() => ok && props.onSelectPlayer(p)}
+        >
           <span className="player-num muted">#{p.number}</span>
           <span className="player-name">{p.name}</span>
           <span className="player-pos muted">{p.positions.join('/')}</span>
           {props.statsVisible && <span className="player-force num">{p.force}</span>}
         </button>
-      ))}
+        )
+      })}
     </div>
   )
 }
