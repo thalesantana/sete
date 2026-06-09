@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@900&family=Hanken+Grotesk:wght@400;700&family=Oswald:wght@700&family=Space+Grotesk:wght@400;700&family=Share+Tech+Mono&display=swap');
+@import './theme.css';
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--surface); color: var(--ink);
+  font-family: var(--body);
+}
+h1, h2, .display { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; }
+.numeral { font-family: var(--numeral); font-weight: var(--numeral-weight); }
+.card { background: var(--surface); border: 2px solid #fff; box-shadow: var(--hard-shadow); }
+button { font-family: var(--body); cursor: pointer; }
+.btn { background: var(--accent); color: #fff; border: none; padding: .6rem 1rem; box-shadow: var(--hard-shadow); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }

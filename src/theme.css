@@ -1,0 +1,14 @@
+:root, [data-theme='paper'] {
+  --surface: #F3ECD8; --ink: #1B1A17; --muted: #6B6452;
+  --accent: #E8462B; --pitch: #2F7D4F; --line: #D8CFB4;
+  --hard-shadow: 3px 3px 0 var(--line);
+  --display: 'Anton', sans-serif; --body: 'Hanken Grotesk', sans-serif; --numeral: 'Archivo', sans-serif;
+  --numeral-weight: 900;
+}
+[data-theme='crt'] {
+  --surface: #0B1A12; --ink: #EDE7D6; --muted: #5F8A6F;
+  --accent: #E2342B; --pitch: #0E2417; --line: #1D4A2E;
+  --hard-shadow: 3px 3px 0 rgba(0,0,0,.5);
+  --display: 'Oswald', sans-serif; --body: 'Space Grotesk', sans-serif; --numeral: 'Share Tech Mono', monospace;
+  --numeral-weight: 400;
+}
