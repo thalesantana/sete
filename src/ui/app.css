@@ -1,0 +1,23 @@
+.app { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.topbar { display: flex; align-items: center; gap: 1rem; padding: .5rem 0; }
+.topbar .logo { font-size: 2rem; color: var(--accent); }
+.topbar button { margin-left: auto; }
+.layout { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+.controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.roll-panel { padding: 1rem; margin-bottom: 1rem; text-align: center; }
+.reroll-row { display: flex; gap: .5rem; align-items: center; justify-content: center; }
+.pitch { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; padding: 1rem; border-radius: 8px; }
+.slot { display: flex; flex-direction: column; padding: .5rem; min-height: 64px; align-items: center; justify-content: center; }
+.slot-pos { font-size: .7rem; color: var(--muted); }
+.slot-name { font-weight: 700; }
+.boxscore { padding: 1rem; }
+.boxscore table { width: 100%; border-collapse: collapse; }
+.boxscore td { border-bottom: 1px solid var(--line); padding: .2rem .3rem; }
+.simulate { margin-top: 1rem; width: 100%; }
+.picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: grid; place-items: center; }
+.picker { padding: 1rem; max-height: 80vh; overflow: auto; min-width: 300px; }
+.picker ul { list-style: none; padding: 0; display: grid; gap: .4rem; }
+.result { padding: 2rem; text-align: center; }
+.result .games { text-align: left; max-width: 480px; margin: 1rem auto; }
+.muted { color: var(--muted); }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
